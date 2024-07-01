@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Google Merchant Products</title>
-  <!-- Load Google API Client Library -->
   <script src="https://apis.google.com/js/api.js"></script>
 </head>
 <body>
@@ -14,7 +13,6 @@
 
   <div id="products"></div>
 
-  <!-- Script Section -->
   <script>
     const CLIENT_ID = "1071167725958-9edrhuv5psrtuidp4d0582kcnupaukjl.apps.googleusercontent.com";
     const API_KEY = "AIzaSyB6KdfrJaEzgxmarfitK6Rll4qyN3B7FeE";
@@ -22,30 +20,19 @@
 
     let accessToken = null;
 
-    // Function to authenticate user
     function authenticate() {
       return gapi.auth2.getAuthInstance()
         .signIn({ scope: "https://www.googleapis.com/auth/content" })
         .then(() => {
           accessToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
-          console.log("Sign-in successful. Access token:", accessToken);
-        })
-        .catch(err => {
-          console.error("Error signing in", err);
-          alert("Error signing in. Please check your internet connection and try again.");
-          throw err;
         });
     }
 
-    // Function to load Google API client
     function loadClient() {
       gapi.client.setApiKey(API_KEY);
-      return gapi.client.load("https://shoppingcontent.googleapis.com/$discovery/rest?version=v2.1")
-        .then(() => { console.log("GAPI client loaded for API"); })
-        .catch(err => { console.error("Error loading GAPI client for API", err); });
+      return gapi.client.load("https://shoppingcontent.googleapis.com/$discovery/rest?version=v2.1");
     }
 
-    // Function to execute API request
     function execute() {
       if (!accessToken) {
         console.error("Access token not available. Please authenticate first.");
@@ -66,11 +53,9 @@
         displayProducts(response.result.resources);
       }).catch(err => {
         console.error("Execute error", err);
-        alert("Error retrieving products. Please try again later.");
       });
     }
 
-    // Function to display products in HTML
     function displayProducts(products) {
       const productsContainer = document.getElementById('products');
       productsContainer.innerHTML = '';
@@ -98,7 +83,6 @@
       }
     }
 
-    // Initialize Google API Client Library
     gapi.load("client:auth2", () => {
       gapi.auth2.init({ client_id: CLIENT_ID });
     });
