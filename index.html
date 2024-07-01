@@ -40,8 +40,13 @@
     function loadClient() {
       gapi.client.setApiKey(API_KEY);
       return gapi.client.load("https://shoppingcontent.googleapis.com/$discovery/rest?version=v2.1")
-        .then(() => { console.log("GAPI client loaded for API"); })
-        .catch(err => { console.error("Error loading GAPI client for API", err); });
+        .then(() => { 
+          console.log("GAPI client loaded for API"); 
+        })
+        .catch(err => { 
+          console.error("Error loading GAPI client for API", err); 
+          alert("Error loading GAPI client for API. Please try again later.");
+        });
     }
 
     // Function to list products
@@ -96,7 +101,9 @@
 
     // Initialize Google API Client Library
     gapi.load("client:auth2", () => {
-      gapi.auth2.init({ client_id: CLIENT_ID });
+      gapi.auth2.init({ client_id: CLIENT_ID })
+        .then(() => console.log("Google Auth2 initialized"))
+        .catch(err => console.error("Error initializing Google Auth2", err));
     });
   </script>
 </body>
