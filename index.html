@@ -12,6 +12,7 @@
 
   <script>
     const CLIENT_ID = "1071167725958-9edrhuv5psrtuidp4d0582kcnupaukjl.apps.googleusercontent.com";
+    const API_KEY = "AIzaSyB6KdfrJaEzgxmarfitK6Rll4qyN3B7FeE";
     const MERCHANT_ID = "5390490385";
     let accessToken = null;
 
@@ -23,17 +24,15 @@
           console.log("Sign-in successful. Access token:", accessToken);
         })
         .catch(err => {
-          if (err.error === 'popup_closed_by_user') {
-            console.error("Sign-in popup closed by user");
-          } else {
-            console.error("Error signing in", err);
-          }
+          console.error("Error signing in", err);
+          alert("Error signing in. Please check your internet connection and try again.");
           throw err;
         });
     }
 
     function loadClient() {
-      gapi.client.load("https://shoppingcontent.googleapis.com/$discovery/rest?version=v2.1")
+      gapi.client.setApiKey(API_KEY);
+      return gapi.client.load("https://shoppingcontent.googleapis.com/$discovery/rest?version=v2.1")
         .then(() => { console.log("GAPI client loaded for API"); })
         .catch(err => { console.error("Error loading GAPI client for API", err); });
     }
@@ -58,6 +57,7 @@
         displayProducts(response.result.resources);
       }).catch(err => {
         console.error("Execute error", err);
+        alert("Error retrieving products. Please try again later.");
       });
     }
 
@@ -88,15 +88,9 @@
       }
     }
 
-    function initClient() {
-      gapi.load("client:auth2", () => {
-        gapi.auth2.init({ client_id: CLIENT_ID })
-          .then(() => { console.log("GAPI client initialized"); })
-          .catch(err => { console.error("Error initializing GAPI client", err); });
-      });
-    }
-
-    initClient();
+    gapi.load("client:auth2", () => {
+      gapi.auth2.init({ client_id: CLIENT_ID });
+    });
   </script>
 </body>
 </html>
