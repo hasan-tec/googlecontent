@@ -4,47 +4,56 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Google Merchant Products</title>
+  <!-- Load Google API Client Library -->
   <script src="https://apis.google.com/js/api.js"></script>
 </head>
 <body>
   <h1>Google Merchant Products</h1>
   <button onclick="authenticate().then(loadClient)">Authorize and Load</button>
-  <button onclick="execute()">Retrieve Products</button>
+  <button onclick="listProducts()">Retrieve Products</button>
 
   <div id="products"></div>
 
+  <!-- Script Section -->
   <script>
     const CLIENT_ID = "1071167725958-9edrhuv5psrtuidp4d0582kcnupaukjl.apps.googleusercontent.com";
-    const API_KEY = "AIzaSyB6KdfrJaEzgxmarfitK6Rll4qyN3B7FeE";
+    const API_KEY = "AIzaSyB6KdfrJaEzgxmarfitK6Rll4qyN3B7FeE"; // Replace with your API key
     const MERCHANT_ID = "5390490385";
-
     let accessToken = null;
 
+    // Function to authenticate user
     function authenticate() {
       return gapi.auth2.getAuthInstance()
         .signIn({ scope: "https://www.googleapis.com/auth/content" })
         .then(() => {
           accessToken = gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token;
+          console.log("Sign-in successful. Access token:", accessToken);
+        })
+        .catch(err => {
+          console.error("Error signing in", err);
+          alert("Error signing in. Please check your internet connection and try again.");
+          throw err;
         });
     }
 
+    // Function to load Google API client
     function loadClient() {
       gapi.client.setApiKey(API_KEY);
-      return gapi.client.load("https://shoppingcontent.googleapis.com/$discovery/rest?version=v2.1");
+      return gapi.client.load("https://shoppingcontent.googleapis.com/$discovery/rest?version=v2.1")
+        .then(() => { console.log("GAPI client loaded for API"); })
+        .catch(err => { console.error("Error loading GAPI client for API", err); });
     }
 
-    function execute() {
+    // Function to list products
+    function listProducts() {
       if (!accessToken) {
         console.error("Access token not available. Please authenticate first.");
         return;
       }
 
       gapi.client.request({
-        path: `https://shoppingcontent.googleapis.com/content/v2.1/products`,
-        params: {
-          merchantId: MERCHANT_ID,
-          maxResults: 10
-        },
+        path: `/content/v2.1/${MERCHANT_ID}/products`,
+        method: 'GET',
         headers: {
           Authorization: `Bearer ${accessToken}`
         }
@@ -52,10 +61,12 @@
         console.log("Response", response);
         displayProducts(response.result.resources);
       }).catch(err => {
-        console.error("Execute error", err);
+        console.error("Error retrieving products", err);
+        alert("Error retrieving products. Please try again later.");
       });
     }
 
+    // Function to display products in HTML
     function displayProducts(products) {
       const productsContainer = document.getElementById('products');
       productsContainer.innerHTML = '';
@@ -83,6 +94,7 @@
       }
     }
 
+    // Initialize Google API Client Library
     gapi.load("client:auth2", () => {
       gapi.auth2.init({ client_id: CLIENT_ID });
     });
