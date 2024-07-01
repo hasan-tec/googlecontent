@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Retrieve Products using Content API</title>
+    <meta charset='utf-8' />
+  </head>
+  <body>
+    <p>Retrieve products using the Content API.</p>
+
+    <!-- Add buttons to initiate auth sequence and sign out -->
+    <button id="authorize-button" style="display: none;">Authorize</button>
+    <button id="signout-button" style="display: none;">Sign Out</button>
+
+    <div id="content"></div>
+
+    <script type="text/javascript">
+      // Enter your API key from the Google API Console:
+      var apiKey = 'AIzaSyB6KdfrJaEzgxmarfitK6Rll4qyN3B7FeE';
+
+      // Enter the API Discovery Docs that describe the APIs you want to access.
+      var discoveryDocs = ["https://content.googleapis.com/discovery/v1/apis/content/v2.1/rest"];
+
+      // Enter your client ID for a web application from the Google API Console:
+      var clientId = '1071167725958-9edrhuv5psrtuidp4d0582kcnupaukjl.apps.googleusercontent.com';
+
+      // Enter one or more authorization scopes.
+      var scopes = 'https://www.googleapis.com/auth/content';
+
+      var authorizeButton = document.getElementById('authorize-button');
+      var signoutButton = document.getElementById('signout-button');
+
+      function handleClientLoad() {
+        // Load the API client and auth2 library
+        gapi.load('client:auth2', initClient);
+      }
+
+      function initClient() {
+        gapi.client.init({
+            apiKey: apiKey,
+            discoveryDocs: discoveryDocs,
+            clientId: clientId,
+            scope: scopes
+        }).then(function () {
+          // Listen for sign-in state changes.
+          gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+
+          // Handle the initial sign-in state.
+          updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+
+          authorizeButton.onclick = handleAuthClick;
+          signoutButton.onclick = handleSignoutClick;
+        });
+      }
+
+      function updateSigninStatus(isSignedIn) {
+        if (isSignedIn) {
+          authorizeButton.style.display = 'none';
+          signoutButton.style.display = 'block';
+          makeApiCall();
+        } else {
+          authorizeButton.style.display = 'block';
+          signoutButton.style.display = 'none';
+        }
+      }
+
+      function handleAuthClick(event) {
+        gapi.auth2.getAuthInstance().signIn();
+      }
+
+      function handleSignoutClick(event) {
+        gapi.auth2.getAuthInstance().signOut();
+      }
+
+      // Load the API and make an API call to retrieve products.
+      function makeApiCall() {
+        gapi.client.content.products.list({
+          'merchantId': '5390490385'
+        }).then(function(resp) {
+          var products = resp.result.resources;
+          var contentDiv = document.getElementById('content');
+          contentDiv.innerHTML = '';
+
+          if (products && products.length > 0) {
+            products.forEach(function(product) {
+              var p = document.createElement('p');
+              p.appendChild(document.createTextNode('Product: ' + product.title));
+              contentDiv.appendChild(p);
+            });
+          } else {
+            var p = document.createElement('p');
+            p.appendChild(document.createTextNode('No products found.'));
+            contentDiv.appendChild(p);
+          }
+        }, function(reason) {
+          console.log('Error: ' + reason.result.error.message);
+        });
+      }
+    </script>
+    <script async defer src="https://apis.google.com/js/api.js" 
+      onload="this.onload=function(){};handleClientLoad()" 
+      onreadystatechange="if (this.readyState === 'complete') this.onload()">
+    </script>
+  </body>
+</html>
