@@ -12,7 +12,9 @@
 
   <script>
     const CLIENT_ID = "1071167725958-9edrhuv5psrtuidp4d0582kcnupaukjl.apps.googleusercontent.com";
+    const CLIENT_SECRET = "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";
     const MERCHANT_ID = "5390490385";
+    const API_KEY = "AIzaSyB6KdfrJaEzgxmarfitK6Rll4qyN3B7FeE";
 
     function authenticate() {
       return gapi.auth2.getAuthInstance()
@@ -22,6 +24,7 @@
     }
 
     function loadClient() {
+      gapi.client.setApiKey(API_KEY);
       gapi.client.load("https://shoppingcontent.googleapis.com/$discovery/rest?version=v2.1")
         .then(() => { console.log("GAPI client loaded for API"); },
               err => { console.error("Error loading GAPI client for API", err); });
@@ -71,8 +74,11 @@
 
     function initClient() {
       gapi.load("client:auth2", () => {
-        gapi.auth2.init({ client_id: CLIENT_ID })
-          .then(() => { console.log("GAPI client initialized"); },
+        gapi.auth2.init({
+          client_id: CLIENT_ID,
+          client_secret: CLIENT_SECRET,
+          scope: "https://www.googleapis.com/auth/content"
+        }).then(() => { console.log("GAPI client initialized"); },
                 err => { console.error("Error initializing GAPI client", err); });
       });
     }
