@@ -23,7 +23,11 @@
           console.log("Sign-in successful. Access token:", accessToken);
         })
         .catch(err => {
-          console.error("Error signing in", err);
+          if (err.error === 'popup_closed_by_user') {
+            console.error("Sign-in popup closed by user");
+          } else {
+            console.error("Error signing in", err);
+          }
           throw err;
         });
     }
