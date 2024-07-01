@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Google Merchant Products</title>
+  <script src="https://apis.google.com/js/api.js"></script>
+</head>
+<body>
+  <button onclick="authenticate().then(loadClient)">Authorize and Load</button>
+  <button onclick="execute()">Retrieve Products</button>
+
+  <div id="products"></div>
+
+  <script>
+    const API_KEY = "AIzaSyB6KdfrJaEzgxmarfitK6Rll4qyN3B7FeE";
+    const CLIENT_ID = "1071167725958-9edrhuv5psrtuidp4d0582kcnupaukjl.apps.googleusercontent.com";
+    const MERCHANT_ID = "5390490385";
+
+    function authenticate() {
+      return gapi.auth2.getAuthInstance()
+        .signIn({ scope: "https://www.googleapis.com/auth/content" })
+        .then(() => { console.log("Sign-in successful"); },
+              err => { console.error("Error signing in", err); });
+    }
+
+    function loadClient() {
+      gapi.client.setApiKey(API_KEY);
+      return gapi.client.load("https://shoppingcontent.googleapis.com/$discovery/rest?version=v2.1")
+        .then(() => { console.log("GAPI client loaded for API"); },
+              err => { console.error("Error loading GAPI client for API", err); });
+    }
+
+    function execute() {
+      return gapi.client.content.products.list({
+        merchantId: MERCHANT_ID,
+        maxResults: 10
+      })
+      .then(response => {
+          console.log("Response", response);
+          displayProducts(response.result.resources);
+        },
+        err => { console.error("Execute error", err); });
+    }
+
+    function displayProducts(products) {
+      const productsContainer = document.getElementById('products');
+      productsContainer.innerHTML = '';
+
+      if (products && products.length > 0) {
+        products.forEach(product => {
+          const productDiv = document.createElement('div');
+          productDiv.className = 'product';
+          productDiv.innerHTML = `
+            <h2>${product.title}</h2>
+            <p>${product.description}</p>
+            <a href="${product.link}" target="_blank">
+              <img src="${product.imageLink}" alt="${product.title}" />
+            </a>
+            <p>Price: ${product.price.value} ${product.price.currency}</p>
+            <p>Sale Price: ${product.salePrice ? product.salePrice.value + ' ' + product.salePrice.currency : 'N/A'}</p>
+            <p>Availability: ${product.availability}</p>
+            <p>Brand: ${product.brand}</p>
+            <p>Condition: ${product.condition || 'N/A'}</p>
+          `;
+          productsContainer.appendChild(productDiv);
+        });
+      } else {
+        productsContainer.innerHTML = '<p>No products found.</p>';
+      }
+    }
+
+    function initClient() {
+      gapi.load("client:auth2", () => {
+        gapi.auth2.init({ client_id: CLIENT_ID })
+          .then(() => { console.log("GAPI client initialized"); },
+                err => { console.error("Error initializing GAPI client", err); });
+      });
+    }
+
+    initClient();
+  </script>
+</body>
+</html>
