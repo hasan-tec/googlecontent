@@ -11,7 +11,6 @@
   <div id="products"></div>
 
   <script>
-    const API_KEY = "AIzaSyB6KdfrJaEzgxmarfitK6Rll4qyN3B7FeE";
     const CLIENT_ID = "1071167725958-9edrhuv5psrtuidp4d0582kcnupaukjl.apps.googleusercontent.com";
     const MERCHANT_ID = "5390490385";
 
@@ -23,22 +22,24 @@
     }
 
     function loadClient() {
-      gapi.client.setApiKey(API_KEY);
-      return gapi.client.load("https://shoppingcontent.googleapis.com/$discovery/rest?version=v2.1")
+      gapi.client.load("https://shoppingcontent.googleapis.com/$discovery/rest?version=v2.1")
         .then(() => { console.log("GAPI client loaded for API"); },
               err => { console.error("Error loading GAPI client for API", err); });
     }
 
     function execute() {
-      return gapi.client.content.products.list({
-        merchantId: MERCHANT_ID,
-        maxResults: 10
-      })
-      .then(response => {
-          console.log("Response", response);
-          displayProducts(response.result.resources);
-        },
-        err => { console.error("Execute error", err); });
+      gapi.auth2.getAuthInstance().currentUser.get().reloadAuthResponse().then(authResponse => {
+        const accessToken = authResponse.access_token;
+        return gapi.client.content.products.list({
+          merchantId: MERCHANT_ID,
+          maxResults: 10,
+          access_token: accessToken  // Include the access token in the request
+        }).then(response => {
+            console.log("Response", response);
+            displayProducts(response.result.resources);
+          },
+          err => { console.error("Execute error", err); });
+      });
     }
 
     function displayProducts(products) {
