@@ -1,21 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Google Merchant Products</title>
+  <!-- Load Google API Client Library -->
   <script src="https://apis.google.com/js/api.js"></script>
 </head>
 <body>
+  <h1>Google Merchant Products</h1>
   <button onclick="authenticate().then(loadClient)">Authorize and Load</button>
   <button onclick="execute()">Retrieve Products</button>
 
   <div id="products"></div>
 
+  <!-- Script Section -->
   <script>
-    const CLIENT_ID = "1071167725958-9edrhuv5psrtuidp4d0582kcnupaukjl.apps.googleusercontent.com";
-    const API_KEY = "AIzaSyB6KdfrJaEzgxmarfitK6Rll4qyN3B7FeE";
-    const MERCHANT_ID = "5390490385";
+    const CLIENT_ID = "YOUR_CLIENT_ID"; // Replace with your Client ID
+    const API_KEY = "YOUR_API_KEY"; // Replace with your API Key
+    const MERCHANT_ID = "YOUR_MERCHANT_ID"; // Replace with your Merchant ID
+
     let accessToken = null;
 
+    // Function to authenticate user
     function authenticate() {
       return gapi.auth2.getAuthInstance()
         .signIn({ scope: "https://www.googleapis.com/auth/content" })
@@ -30,6 +37,7 @@
         });
     }
 
+    // Function to load Google API client
     function loadClient() {
       gapi.client.setApiKey(API_KEY);
       return gapi.client.load("https://shoppingcontent.googleapis.com/$discovery/rest?version=v2.1")
@@ -37,6 +45,7 @@
         .catch(err => { console.error("Error loading GAPI client for API", err); });
     }
 
+    // Function to execute API request
     function execute() {
       if (!accessToken) {
         console.error("Access token not available. Please authenticate first.");
@@ -61,6 +70,7 @@
       });
     }
 
+    // Function to display products in HTML
     function displayProducts(products) {
       const productsContainer = document.getElementById('products');
       productsContainer.innerHTML = '';
@@ -88,6 +98,7 @@
       }
     }
 
+    // Initialize Google API Client Library
     gapi.load("client:auth2", () => {
       gapi.auth2.init({ client_id: CLIENT_ID });
     });
